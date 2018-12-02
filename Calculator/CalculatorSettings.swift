@@ -15,7 +15,10 @@ class CalculatorSettings: UIViewController {
     }
     @IBOutlet weak var result: UILabel!
     
-    var storedResults = 0;
+    var storedResults = 0
+    var currentResults = 0
+    var solved = 0
+    var storedSign = 0
     
     @IBAction func numbers(_ sender: UIButton) { //#'s 0-9
         
@@ -24,22 +27,38 @@ class CalculatorSettings: UIViewController {
         } else {
             result.text = result.text! + String(sender.tag)
         }
-        storeResults()
-        
+        currentResults = Int(result.text!)!
+//     Note of where comma's are placed in numbers.. 100  1,000  10,000  100,000  1,000,000  10,000,000  100,000,000  1,000,000,000
     }
     
     @IBAction func equationSigns(_ sender: UIButton) { // 10: =, 11: +, 12: -, 13: *, 14: /, 15: +/-, 16: AC
-        switch sender.tag {
-            case 10...15:
-                storeResults()
-                result.text = sender.titleLabel!.text
-            case 16:
-                result.text = "0"
-                storedResults = 0;
-                storeResults()
-            default:
-                print("required by law")
+        if sender.tag == 16 { // AC - All Clear
+            result.text = "0"
+            storedResults = 0
+            currentResults = 0
+            storedSign = 0
+            storeResults()
+        } else if sender.tag == 10 { // =
+            currentResults = Int(result.text!)!
+            print("Stored: \(storedResults) , Current: \(currentResults)")
+            switch storedSign {
+                case 11: // +
+                result.text = String(storedResults + currentResults)
+                case 12: // -
+                    result.text = String(storedResults - currentResults)
+                case 13: // *
+                    result.text = String(storedResults * currentResults)
+                case 14: // divide
+                    result.text = String(storedResults / currentResults)
+                default: // default, +
+                    result.text = String(storedResults + currentResults)
+                    print("default called")
             }
+        } else if sender.tag == 11 || sender.tag == 12 || sender.tag == 13 || sender.tag == 14 { // Signs represented are +, -, *, /
+            storeResults()
+            result.text = "0"
+            storedSign = sender.tag
+        }
     }
     
     func storeResults() {
@@ -49,6 +68,5 @@ class CalculatorSettings: UIViewController {
         } else {
             print("Can't store the results of a non-number")
         }
-        
     }
 }
